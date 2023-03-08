@@ -1,0 +1,1729 @@
+{
+   "class_name": "Functional",
+   "config": {
+      "name": "CVAE",
+      "layers": [
+         {
+            "class_name": "InputLayer",
+            "config": {
+               "batch_input_shape": [
+                  null,
+                  40
+               ],
+               "dtype": "float32",
+               "sparse": false,
+               "ragged": false,
+               "name": "raw attributes"
+            },
+            "name": "raw attributes",
+            "inbound_nodes": []
+         },
+         {
+            "class_name": "Dense",
+            "config": {
+               "name": "dense",
+               "trainable": true,
+               "dtype": "float32",
+               "units": 4096,
+               "activation": "linear",
+               "use_bias": true,
+               "kernel_initializer": {
+                  "class_name": "GlorotUniform",
+                  "config": {
+                     "seed": null
+                  }
+               },
+               "bias_initializer": {
+                  "class_name": "Zeros",
+                  "config": {}
+               },
+               "kernel_regularizer": null,
+               "bias_regularizer": null,
+               "activity_regularizer": null,
+               "kernel_constraint": null,
+               "bias_constraint": null
+            },
+            "name": "dense",
+            "inbound_nodes": [
+               [
+                  [
+                     "raw attributes",
+                     0,
+                     0,
+                     {}
+                  ]
+               ]
+            ]
+         },
+         {
+            "class_name": "InputLayer",
+            "config": {
+               "batch_input_shape": [
+                  null,
+                  64,
+                  64,
+                  3
+               ],
+               "dtype": "float32",
+               "sparse": false,
+               "ragged": false,
+               "name": "inputs"
+            },
+            "name": "inputs",
+            "inbound_nodes": []
+         },
+         {
+            "class_name": "Reshape",
+            "config": {
+               "name": "reshape",
+               "trainable": true,
+               "dtype": "float32",
+               "target_shape": [
+                  64,
+                  64
+               ]
+            },
+            "name": "reshape",
+            "inbound_nodes": [
+               [
+                  [
+                     "dense",
+                     0,
+                     0,
+                     {}
+                  ]
+               ]
+            ]
+         },
+         {
+            "class_name": "Functional",
+            "config": {
+               "name": "Encoder",
+               "layers": [
+                  {
+                     "class_name": "InputLayer",
+                     "config": {
+                        "batch_input_shape": [
+                           null,
+                           64,
+                           64,
+                           3
+                        ],
+                        "dtype": "float32",
+                        "sparse": false,
+                        "ragged": false,
+                        "name": "inputs"
+                     },
+                     "name": "inputs",
+                     "inbound_nodes": []
+                  },
+                  {
+                     "class_name": "InputLayer",
+                     "config": {
+                        "batch_input_shape": [
+                           null,
+                           64,
+                           64,
+                           1
+                        ],
+                        "dtype": "float32",
+                        "sparse": false,
+                        "ragged": false,
+                        "name": "input_1"
+                     },
+                     "name": "input_1",
+                     "inbound_nodes": []
+                  },
+                  {
+                     "class_name": "Concatenate",
+                     "config": {
+                        "name": "concatenate",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "axis": -1
+                     },
+                     "name": "concatenate",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "inputs",
+                              0,
+                              0,
+                              {}
+                           ],
+                           [
+                              "input_1",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "ZeroPadding2D",
+                     "config": {
+                        "name": "zero_padding2d",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "padding": [
+                           [
+                              1,
+                              1
+                           ],
+                           [
+                              1,
+                              1
+                           ]
+                        ],
+                        "data_format": "channels_last"
+                     },
+                     "name": "zero_padding2d",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "concatenate",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Conv2D",
+                     "config": {
+                        "name": "conv2d",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "filters": 32,
+                        "kernel_size": [
+                           3,
+                           3
+                        ],
+                        "strides": [
+                           2,
+                           2
+                        ],
+                        "padding": "valid",
+                        "data_format": "channels_last",
+                        "dilation_rate": [
+                           1,
+                           1
+                        ],
+                        "groups": 1,
+                        "activation": "linear",
+                        "use_bias": true,
+                        "kernel_initializer": {
+                           "class_name": "GlorotUniform",
+                           "config": {
+                              "seed": null
+                           }
+                        },
+                        "bias_initializer": {
+                           "class_name": "Zeros",
+                           "config": {}
+                        },
+                        "kernel_regularizer": null,
+                        "bias_regularizer": null,
+                        "activity_regularizer": null,
+                        "kernel_constraint": null,
+                        "bias_constraint": null
+                     },
+                     "name": "conv2d",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "zero_padding2d",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "LeakyReLU",
+                     "config": {
+                        "name": "leaky_re_lu",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "alpha": 0.30000001192092896
+                     },
+                     "name": "leaky_re_lu",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "conv2d",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "ZeroPadding2D",
+                     "config": {
+                        "name": "zero_padding2d_1",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "padding": [
+                           [
+                              1,
+                              1
+                           ],
+                           [
+                              1,
+                              1
+                           ]
+                        ],
+                        "data_format": "channels_last"
+                     },
+                     "name": "zero_padding2d_1",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "leaky_re_lu",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Conv2D",
+                     "config": {
+                        "name": "conv2d_1",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "filters": 64,
+                        "kernel_size": [
+                           3,
+                           3
+                        ],
+                        "strides": [
+                           2,
+                           2
+                        ],
+                        "padding": "valid",
+                        "data_format": "channels_last",
+                        "dilation_rate": [
+                           1,
+                           1
+                        ],
+                        "groups": 1,
+                        "activation": "linear",
+                        "use_bias": true,
+                        "kernel_initializer": {
+                           "class_name": "GlorotUniform",
+                           "config": {
+                              "seed": null
+                           }
+                        },
+                        "bias_initializer": {
+                           "class_name": "Zeros",
+                           "config": {}
+                        },
+                        "kernel_regularizer": null,
+                        "bias_regularizer": null,
+                        "activity_regularizer": null,
+                        "kernel_constraint": null,
+                        "bias_constraint": null
+                     },
+                     "name": "conv2d_1",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "zero_padding2d_1",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "LeakyReLU",
+                     "config": {
+                        "name": "leaky_re_lu_1",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "alpha": 0.30000001192092896
+                     },
+                     "name": "leaky_re_lu_1",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "conv2d_1",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "ZeroPadding2D",
+                     "config": {
+                        "name": "zero_padding2d_2",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "padding": [
+                           [
+                              1,
+                              1
+                           ],
+                           [
+                              1,
+                              1
+                           ]
+                        ],
+                        "data_format": "channels_last"
+                     },
+                     "name": "zero_padding2d_2",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "leaky_re_lu_1",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Conv2D",
+                     "config": {
+                        "name": "conv2d_2",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "filters": 128,
+                        "kernel_size": [
+                           3,
+                           3
+                        ],
+                        "strides": [
+                           2,
+                           2
+                        ],
+                        "padding": "valid",
+                        "data_format": "channels_last",
+                        "dilation_rate": [
+                           1,
+                           1
+                        ],
+                        "groups": 1,
+                        "activation": "linear",
+                        "use_bias": true,
+                        "kernel_initializer": {
+                           "class_name": "GlorotUniform",
+                           "config": {
+                              "seed": null
+                           }
+                        },
+                        "bias_initializer": {
+                           "class_name": "Zeros",
+                           "config": {}
+                        },
+                        "kernel_regularizer": null,
+                        "bias_regularizer": null,
+                        "activity_regularizer": null,
+                        "kernel_constraint": null,
+                        "bias_constraint": null
+                     },
+                     "name": "conv2d_2",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "zero_padding2d_2",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "LeakyReLU",
+                     "config": {
+                        "name": "leaky_re_lu_2",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "alpha": 0.30000001192092896
+                     },
+                     "name": "leaky_re_lu_2",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "conv2d_2",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "ZeroPadding2D",
+                     "config": {
+                        "name": "zero_padding2d_3",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "padding": [
+                           [
+                              1,
+                              1
+                           ],
+                           [
+                              1,
+                              1
+                           ]
+                        ],
+                        "data_format": "channels_last"
+                     },
+                     "name": "zero_padding2d_3",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "leaky_re_lu_2",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Conv2D",
+                     "config": {
+                        "name": "conv2d_3",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "filters": 256,
+                        "kernel_size": [
+                           3,
+                           3
+                        ],
+                        "strides": [
+                           2,
+                           2
+                        ],
+                        "padding": "valid",
+                        "data_format": "channels_last",
+                        "dilation_rate": [
+                           1,
+                           1
+                        ],
+                        "groups": 1,
+                        "activation": "linear",
+                        "use_bias": true,
+                        "kernel_initializer": {
+                           "class_name": "GlorotUniform",
+                           "config": {
+                              "seed": null
+                           }
+                        },
+                        "bias_initializer": {
+                           "class_name": "Zeros",
+                           "config": {}
+                        },
+                        "kernel_regularizer": null,
+                        "bias_regularizer": null,
+                        "activity_regularizer": null,
+                        "kernel_constraint": null,
+                        "bias_constraint": null
+                     },
+                     "name": "conv2d_3",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "zero_padding2d_3",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "LeakyReLU",
+                     "config": {
+                        "name": "leaky_re_lu_3",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "alpha": 0.30000001192092896
+                     },
+                     "name": "leaky_re_lu_3",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "conv2d_3",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "ZeroPadding2D",
+                     "config": {
+                        "name": "zero_padding2d_4",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "padding": [
+                           [
+                              1,
+                              1
+                           ],
+                           [
+                              1,
+                              1
+                           ]
+                        ],
+                        "data_format": "channels_last"
+                     },
+                     "name": "zero_padding2d_4",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "leaky_re_lu_3",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Conv2D",
+                     "config": {
+                        "name": "conv2d_4",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "filters": 512,
+                        "kernel_size": [
+                           3,
+                           3
+                        ],
+                        "strides": [
+                           2,
+                           2
+                        ],
+                        "padding": "valid",
+                        "data_format": "channels_last",
+                        "dilation_rate": [
+                           1,
+                           1
+                        ],
+                        "groups": 1,
+                        "activation": "linear",
+                        "use_bias": true,
+                        "kernel_initializer": {
+                           "class_name": "GlorotUniform",
+                           "config": {
+                              "seed": null
+                           }
+                        },
+                        "bias_initializer": {
+                           "class_name": "Zeros",
+                           "config": {}
+                        },
+                        "kernel_regularizer": null,
+                        "bias_regularizer": null,
+                        "activity_regularizer": null,
+                        "kernel_constraint": null,
+                        "bias_constraint": null
+                     },
+                     "name": "conv2d_4",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "zero_padding2d_4",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "LeakyReLU",
+                     "config": {
+                        "name": "leaky_re_lu_4",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "alpha": 0.30000001192092896
+                     },
+                     "name": "leaky_re_lu_4",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "conv2d_4",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Flatten",
+                     "config": {
+                        "name": "flatten",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "data_format": "channels_last"
+                     },
+                     "name": "flatten",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "leaky_re_lu_4",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Dense",
+                     "config": {
+                        "name": "sigma",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "units": 128,
+                        "activation": "linear",
+                        "use_bias": true,
+                        "kernel_initializer": {
+                           "class_name": "GlorotUniform",
+                           "config": {
+                              "seed": null
+                           }
+                        },
+                        "bias_initializer": {
+                           "class_name": "Zeros",
+                           "config": {}
+                        },
+                        "kernel_regularizer": null,
+                        "bias_regularizer": null,
+                        "activity_regularizer": null,
+                        "kernel_constraint": null,
+                        "bias_constraint": null
+                     },
+                     "name": "sigma",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "flatten",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "TFOpLambda",
+                     "config": {
+                        "name": "tf.math.multiply",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "function": "math.multiply"
+                     },
+                     "name": "tf.math.multiply",
+                     "inbound_nodes": [
+                        [
+                           "_CONSTANT_VALUE",
+                           -1,
+                           0.5,
+                           {
+                              "y": [
+                                 "sigma",
+                                 0,
+                                 0
+                              ],
+                              "name": null
+                           }
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "TFOpLambda",
+                     "config": {
+                        "name": "tf.math.exp",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "function": "math.exp"
+                     },
+                     "name": "tf.math.exp",
+                     "inbound_nodes": [
+                        [
+                           "tf.math.multiply",
+                           0,
+                           0,
+                           {}
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "TFOpLambda",
+                     "config": {
+                        "name": "tf.compat.v1.shape",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "function": "compat.v1.shape"
+                     },
+                     "name": "tf.compat.v1.shape",
+                     "inbound_nodes": [
+                        [
+                           "tf.math.exp",
+                           0,
+                           0,
+                           {
+                              "name": null,
+                              "out_type": "int32"
+                           }
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "TFOpLambda",
+                     "config": {
+                        "name": "tf.random.normal",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "function": "random.normal"
+                     },
+                     "name": "tf.random.normal",
+                     "inbound_nodes": [
+                        [
+                           "tf.compat.v1.shape",
+                           0,
+                           0,
+                           {}
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Dense",
+                     "config": {
+                        "name": "mu",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "units": 128,
+                        "activation": "linear",
+                        "use_bias": true,
+                        "kernel_initializer": {
+                           "class_name": "GlorotUniform",
+                           "config": {
+                              "seed": null
+                           }
+                        },
+                        "bias_initializer": {
+                           "class_name": "Zeros",
+                           "config": {}
+                        },
+                        "kernel_regularizer": null,
+                        "bias_regularizer": null,
+                        "activity_regularizer": null,
+                        "kernel_constraint": null,
+                        "bias_constraint": null
+                     },
+                     "name": "mu",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "flatten",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "TFOpLambda",
+                     "config": {
+                        "name": "tf.math.multiply_1",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "function": "math.multiply"
+                     },
+                     "name": "tf.math.multiply_1",
+                     "inbound_nodes": [
+                        [
+                           "tf.random.normal",
+                           0,
+                           0,
+                           {
+                              "y": [
+                                 "sigma",
+                                 0,
+                                 0
+                              ],
+                              "name": null
+                           }
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "TFOpLambda",
+                     "config": {
+                        "name": "tf.__operators__.add",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "function": "__operators__.add"
+                     },
+                     "name": "tf.__operators__.add",
+                     "inbound_nodes": [
+                        [
+                           "mu",
+                           0,
+                           0,
+                           {
+                              "y": [
+                                 "tf.math.multiply_1",
+                                 0,
+                                 0
+                              ],
+                              "name": null
+                           }
+                        ]
+                     ]
+                  }
+               ],
+               "input_layers": [
+                  [
+                     "inputs",
+                     0,
+                     0
+                  ],
+                  [
+                     "input_1",
+                     0,
+                     0
+                  ]
+               ],
+               "output_layers": [
+                  [
+                     "tf.__operators__.add",
+                     0,
+                     0
+                  ]
+               ]
+            },
+            "name": "Encoder",
+            "inbound_nodes": [
+               [
+                  [
+                     "inputs",
+                     0,
+                     0,
+                     {}
+                  ],
+                  [
+                     "reshape",
+                     0,
+                     0,
+                     {}
+                  ]
+               ]
+            ]
+         },
+         {
+            "class_name": "Functional",
+            "config": {
+               "name": "Decoder",
+               "layers": [
+                  {
+                     "class_name": "InputLayer",
+                     "config": {
+                        "batch_input_shape": [
+                           null,
+                           128
+                        ],
+                        "dtype": "float32",
+                        "sparse": false,
+                        "ragged": false,
+                        "name": "z"
+                     },
+                     "name": "z",
+                     "inbound_nodes": []
+                  },
+                  {
+                     "class_name": "InputLayer",
+                     "config": {
+                        "batch_input_shape": [
+                           null,
+                           40
+                        ],
+                        "dtype": "float32",
+                        "sparse": false,
+                        "ragged": false,
+                        "name": "raw attributes"
+                     },
+                     "name": "raw attributes",
+                     "inbound_nodes": []
+                  },
+                  {
+                     "class_name": "Concatenate",
+                     "config": {
+                        "name": "concatenate_1",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "axis": -1
+                     },
+                     "name": "concatenate_1",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "z",
+                              0,
+                              0,
+                              {}
+                           ],
+                           [
+                              "raw attributes",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Dense",
+                     "config": {
+                        "name": "dense_1",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "units": 2048,
+                        "activation": "linear",
+                        "use_bias": true,
+                        "kernel_initializer": {
+                           "class_name": "GlorotUniform",
+                           "config": {
+                              "seed": null
+                           }
+                        },
+                        "bias_initializer": {
+                           "class_name": "Zeros",
+                           "config": {}
+                        },
+                        "kernel_regularizer": null,
+                        "bias_regularizer": null,
+                        "activity_regularizer": null,
+                        "kernel_constraint": null,
+                        "bias_constraint": null
+                     },
+                     "name": "dense_1",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "concatenate_1",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Reshape",
+                     "config": {
+                        "name": "reshape_2",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "target_shape": [
+                           2,
+                           2,
+                           512
+                        ]
+                     },
+                     "name": "reshape_2",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "dense_1",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Conv2DTranspose",
+                     "config": {
+                        "name": "conv2d_transpose",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "filters": 256,
+                        "kernel_size": [
+                           3,
+                           3
+                        ],
+                        "strides": [
+                           2,
+                           2
+                        ],
+                        "padding": "valid",
+                        "data_format": "channels_last",
+                        "dilation_rate": [
+                           1,
+                           1
+                        ],
+                        "groups": 1,
+                        "activation": "linear",
+                        "use_bias": true,
+                        "kernel_initializer": {
+                           "class_name": "GlorotUniform",
+                           "config": {
+                              "seed": null
+                           }
+                        },
+                        "bias_initializer": {
+                           "class_name": "Zeros",
+                           "config": {}
+                        },
+                        "kernel_regularizer": null,
+                        "bias_regularizer": null,
+                        "activity_regularizer": null,
+                        "kernel_constraint": null,
+                        "bias_constraint": null,
+                        "output_padding": null
+                     },
+                     "name": "conv2d_transpose",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "reshape_2",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "LeakyReLU",
+                     "config": {
+                        "name": "leaky_re_lu_5",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "alpha": 0.30000001192092896
+                     },
+                     "name": "leaky_re_lu_5",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "conv2d_transpose",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "ZeroPadding2D",
+                     "config": {
+                        "name": "zero_padding2d_5",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "padding": [
+                           [
+                              1,
+                              1
+                           ],
+                           [
+                              1,
+                              1
+                           ]
+                        ],
+                        "data_format": "channels_last"
+                     },
+                     "name": "zero_padding2d_5",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "leaky_re_lu_5",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Conv2DTranspose",
+                     "config": {
+                        "name": "conv2d_transpose_1",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "filters": 128,
+                        "kernel_size": [
+                           3,
+                           3
+                        ],
+                        "strides": [
+                           2,
+                           2
+                        ],
+                        "padding": "valid",
+                        "data_format": "channels_last",
+                        "dilation_rate": [
+                           1,
+                           1
+                        ],
+                        "groups": 1,
+                        "activation": "linear",
+                        "use_bias": true,
+                        "kernel_initializer": {
+                           "class_name": "GlorotUniform",
+                           "config": {
+                              "seed": null
+                           }
+                        },
+                        "bias_initializer": {
+                           "class_name": "Zeros",
+                           "config": {}
+                        },
+                        "kernel_regularizer": null,
+                        "bias_regularizer": null,
+                        "activity_regularizer": null,
+                        "kernel_constraint": null,
+                        "bias_constraint": null,
+                        "output_padding": null
+                     },
+                     "name": "conv2d_transpose_1",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "zero_padding2d_5",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "LeakyReLU",
+                     "config": {
+                        "name": "leaky_re_lu_6",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "alpha": 0.30000001192092896
+                     },
+                     "name": "leaky_re_lu_6",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "conv2d_transpose_1",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "ZeroPadding2D",
+                     "config": {
+                        "name": "zero_padding2d_6",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "padding": [
+                           [
+                              1,
+                              1
+                           ],
+                           [
+                              1,
+                              1
+                           ]
+                        ],
+                        "data_format": "channels_last"
+                     },
+                     "name": "zero_padding2d_6",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "leaky_re_lu_6",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Conv2DTranspose",
+                     "config": {
+                        "name": "conv2d_transpose_2",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "filters": 64,
+                        "kernel_size": [
+                           3,
+                           3
+                        ],
+                        "strides": [
+                           2,
+                           2
+                        ],
+                        "padding": "valid",
+                        "data_format": "channels_last",
+                        "dilation_rate": [
+                           1,
+                           1
+                        ],
+                        "groups": 1,
+                        "activation": "linear",
+                        "use_bias": true,
+                        "kernel_initializer": {
+                           "class_name": "GlorotUniform",
+                           "config": {
+                              "seed": null
+                           }
+                        },
+                        "bias_initializer": {
+                           "class_name": "Zeros",
+                           "config": {}
+                        },
+                        "kernel_regularizer": null,
+                        "bias_regularizer": null,
+                        "activity_regularizer": null,
+                        "kernel_constraint": null,
+                        "bias_constraint": null,
+                        "output_padding": null
+                     },
+                     "name": "conv2d_transpose_2",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "zero_padding2d_6",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "LeakyReLU",
+                     "config": {
+                        "name": "leaky_re_lu_7",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "alpha": 0.30000001192092896
+                     },
+                     "name": "leaky_re_lu_7",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "conv2d_transpose_2",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "ZeroPadding2D",
+                     "config": {
+                        "name": "zero_padding2d_7",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "padding": [
+                           [
+                              1,
+                              1
+                           ],
+                           [
+                              1,
+                              1
+                           ]
+                        ],
+                        "data_format": "channels_last"
+                     },
+                     "name": "zero_padding2d_7",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "leaky_re_lu_7",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Conv2DTranspose",
+                     "config": {
+                        "name": "conv2d_transpose_3",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "filters": 32,
+                        "kernel_size": [
+                           3,
+                           3
+                        ],
+                        "strides": [
+                           2,
+                           2
+                        ],
+                        "padding": "valid",
+                        "data_format": "channels_last",
+                        "dilation_rate": [
+                           1,
+                           1
+                        ],
+                        "groups": 1,
+                        "activation": "linear",
+                        "use_bias": true,
+                        "kernel_initializer": {
+                           "class_name": "GlorotUniform",
+                           "config": {
+                              "seed": null
+                           }
+                        },
+                        "bias_initializer": {
+                           "class_name": "Zeros",
+                           "config": {}
+                        },
+                        "kernel_regularizer": null,
+                        "bias_regularizer": null,
+                        "activity_regularizer": null,
+                        "kernel_constraint": null,
+                        "bias_constraint": null,
+                        "output_padding": null
+                     },
+                     "name": "conv2d_transpose_3",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "zero_padding2d_7",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "LeakyReLU",
+                     "config": {
+                        "name": "leaky_re_lu_8",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "alpha": 0.30000001192092896
+                     },
+                     "name": "leaky_re_lu_8",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "conv2d_transpose_3",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "ZeroPadding2D",
+                     "config": {
+                        "name": "zero_padding2d_8",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "padding": [
+                           [
+                              1,
+                              1
+                           ],
+                           [
+                              1,
+                              1
+                           ]
+                        ],
+                        "data_format": "channels_last"
+                     },
+                     "name": "zero_padding2d_8",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "leaky_re_lu_8",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Conv2DTranspose",
+                     "config": {
+                        "name": "conv2d_transpose_4",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "filters": 32,
+                        "kernel_size": [
+                           3,
+                           3
+                        ],
+                        "strides": [
+                           2,
+                           2
+                        ],
+                        "padding": "valid",
+                        "data_format": "channels_last",
+                        "dilation_rate": [
+                           1,
+                           1
+                        ],
+                        "groups": 1,
+                        "activation": "linear",
+                        "use_bias": true,
+                        "kernel_initializer": {
+                           "class_name": "GlorotUniform",
+                           "config": {
+                              "seed": null
+                           }
+                        },
+                        "bias_initializer": {
+                           "class_name": "Zeros",
+                           "config": {}
+                        },
+                        "kernel_regularizer": null,
+                        "bias_regularizer": null,
+                        "activity_regularizer": null,
+                        "kernel_constraint": null,
+                        "bias_constraint": null,
+                        "output_padding": null
+                     },
+                     "name": "conv2d_transpose_4",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "zero_padding2d_8",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "LeakyReLU",
+                     "config": {
+                        "name": "leaky_re_lu_9",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "alpha": 0.30000001192092896
+                     },
+                     "name": "leaky_re_lu_9",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "conv2d_transpose_4",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "ZeroPadding2D",
+                     "config": {
+                        "name": "zero_padding2d_9",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "padding": [
+                           [
+                              1,
+                              1
+                           ],
+                           [
+                              1,
+                              1
+                           ]
+                        ],
+                        "data_format": "channels_last"
+                     },
+                     "name": "zero_padding2d_9",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "leaky_re_lu_9",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Conv2D",
+                     "config": {
+                        "name": "conv2d_5",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "filters": 3,
+                        "kernel_size": [
+                           3,
+                           3
+                        ],
+                        "strides": [
+                           1,
+                           1
+                        ],
+                        "padding": "valid",
+                        "data_format": "channels_last",
+                        "dilation_rate": [
+                           1,
+                           1
+                        ],
+                        "groups": 1,
+                        "activation": "linear",
+                        "use_bias": true,
+                        "kernel_initializer": {
+                           "class_name": "GlorotUniform",
+                           "config": {
+                              "seed": null
+                           }
+                        },
+                        "bias_initializer": {
+                           "class_name": "Zeros",
+                           "config": {}
+                        },
+                        "kernel_regularizer": null,
+                        "bias_regularizer": null,
+                        "activity_regularizer": null,
+                        "kernel_constraint": null,
+                        "bias_constraint": null
+                     },
+                     "name": "conv2d_5",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "zero_padding2d_9",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "Activation",
+                     "config": {
+                        "name": "activation",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "activation": "tanh"
+                     },
+                     "name": "activation",
+                     "inbound_nodes": [
+                        [
+                           [
+                              "conv2d_5",
+                              0,
+                              0,
+                              {}
+                           ]
+                        ]
+                     ]
+                  },
+                  {
+                     "class_name": "TFOpLambda",
+                     "config": {
+                        "name": "tf.image.central_crop",
+                        "trainable": true,
+                        "dtype": "float32",
+                        "function": "image.central_crop"
+                     },
+                     "name": "tf.image.central_crop",
+                     "inbound_nodes": [
+                        [
+                           "activation",
+                           0,
+                           0,
+                           {
+                              "central_fraction": 0.5
+                           }
+                        ]
+                     ]
+                  }
+               ],
+               "input_layers": [
+                  [
+                     "z",
+                     0,
+                     0
+                  ],
+                  [
+                     "raw attributes",
+                     0,
+                     0
+                  ]
+               ],
+               "output_layers": [
+                  [
+                     "tf.image.central_crop",
+                     0,
+                     0
+                  ]
+               ]
+            },
+            "name": "Decoder",
+            "inbound_nodes": [
+               [
+                  [
+                     "Encoder",
+                     1,
+                     0,
+                     {}
+                  ],
+                  [
+                     "raw attributes",
+                     0,
+                     0,
+                     {}
+                  ]
+               ]
+            ]
+         }
+      ],
+      "input_layers": [
+         [
+            "inputs",
+            0,
+            0
+         ],
+         [
+            "raw attributes",
+            0,
+            0
+         ]
+      ],
+      "output_layers": [
+         [
+            "Decoder",
+            1,
+            0
+         ]
+      ]
+   },
+   "keras_version": "2.10.0",
+   "backend": "tensorflow"
+}
