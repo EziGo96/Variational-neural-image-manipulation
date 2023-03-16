@@ -1,2 +1,2 @@
-# Variational neural machine translation
- Implementation of the paper "Variational neural machine translation"
+# Variational neural synthetic image generation
+ Implementation of the paper "Variational neural machine translation" for generating targeted manipulated images from source images.
